@@ -115,6 +115,13 @@
     .result-block > div:nth-child(2) {
       margin-bottom: 10px;
     }
+    .result-block .question {
+      margin-bottom: 10px;
+    }
+    .result-block .variant-line {
+      margin-left: 15px;
+      margin-bottom: 10px;
+    }
     .result-score {
       position: absolute;
       top: 10px;
@@ -179,6 +186,14 @@
   let currentQuestion = 0;
   let timerInterval;
 
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
   function startTest() {
     const fileInput = document.getElementById('fileInput');
     const file = fileInput.files[0];
@@ -218,13 +233,10 @@
         correct: tag[0] === '<variantright>'
       }));
 
-      for (let i = variants.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [variants[i], variants[j]] = [variants[j], variants[i]];
-      }
-
-      return { q, variants, selected: null };
+      return { q, variants: shuffleArray(variants), selected: null };
     });
+
+    questions = shuffleArray(questions);
 
     const limit = Math.min(+document.getElementById('questionCount').value, questions.length);
     if (questions.length < +document.getElementById('questionCount').value) {
@@ -307,7 +319,8 @@
 
     let correctCount = 0;
     const details = questions.map((q, idx) => {
-      const isCorrect = q.variants.find(v => v.correct)?.text === q.selected;
+      const correctVariant = q.variants.find(v => v.correct)?.text;
+      const isCorrect = correctVariant === q.selected;
       if (isCorrect) correctCount++;
       return `
         <div class="result-block">
@@ -315,7 +328,11 @@
           <div><strong>Вопрос ${idx + 1}:</strong> ${q.q}</div>
           <div>
             ${q.variants.map(v => `
-              <div class="variant-line">${v.text}${q.selected === v.text ? ' (выбран)' : ''}</div>`).join('')}
+              <div class="variant-line">
+                ${v.text}
+                ${q.selected === v.text ? ' <strong>(вы выбрали)</strong>' : ''}
+                ${v.correct ? ' <span style="color:green;"><strong>(правильный ответ)</strong></span>' : ''}
+              </div>`).join('')}
           </div>
         </div>
       `;
