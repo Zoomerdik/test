@@ -10,8 +10,6 @@
       background: #f0f2f5;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
-      
     }
     .container {
       max-width: 900px;
@@ -153,28 +151,48 @@
     .variant-line {
       margin-bottom: 5px;
     }
-  
-    #questionsContainer {
-      max-height: 60vh;
-      overflow-y: auto;
-      padding-right: 10px;
-    }
-    .question-block {
-      transition: opacity 0.3s ease;
-    }
 
-  
-body.results-mode {
-  overflow-y: auto;
-}
-body.test-mode,
-body.upload-mode {
-  overflow-y: hidden;
+    @media (max-width: 768px) {
+  #testTitle,
+  .timer {
+    display: none;
+  }
+
+  #questionsContainer {
+    margin-bottom: 120px; /* чтобы контент не перекрывался нижними кнопками */
+  }
+
+  .question-nav {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .question-nav button {
+    margin: 4px;
+  }
+
+  #testArea > button {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    z-index: 1001;
+  }
 }
 
   </style>
 </head>
-<body class="upload-mode">
+<body>
 <div class="container" id="uploadArea">
   <h2>Загрузка теста</h2>
   <label>Название теста:</label>
@@ -267,7 +285,6 @@ body.upload-mode {
     questions = questions.slice(0, limit);
 
     document.getElementById('uploadArea').style.display = 'none';
-    document.body.className = 'test-mode';
     document.getElementById('testArea').style.display = 'block';
     showTestUI();
     startTimer(+document.getElementById('testTime').value);
@@ -313,13 +330,7 @@ body.upload-mode {
 
   function showQuestion(i) {
     document.querySelectorAll('.question-block').forEach((div, idx) => {
-      if (idx === i) {
-        div.style.display = 'block';
-        div.style.opacity = '1';
-      } else {
-        div.style.display = 'none';
-        div.style.opacity = '0';
-      }
+      div.style.display = idx === i ? 'block' : 'none';
     });
     currentQuestion = i;
   }
@@ -344,7 +355,6 @@ body.upload-mode {
   function finishTest() {
     clearInterval(timerInterval);
     document.getElementById('testArea').style.display = 'none';
-    document.body.className = 'results-mode';
     document.getElementById('resultArea').style.display = 'block';
 
     let correctCount = 0;
